@@ -1,0 +1,54 @@
+---
+title: "BMI in 199 Countries from 1980-2008"
+author: "William W. Chiang"
+date: "January 5, 2016"
+output: html_document
+---
+
+The Body Mass Index (BMI) data from the MRC-HPA Centre for Environment and Health tabulates the BMI of the male population across 199 countries over a time period of 1980 through 2008.
+
+BMI was calculated "as if each country has the same age composition as the world population" (Gapminder, 2011).
+
+Reference
+
+Gapminder. (2011). BMI male, age standardized mean. Retrieved from https://docs.google.com/spreadsheets/d/1KleqJdQpaE_p8gS0kmFqwYdtyobn47lXSCObhJyiSVY/pub?gid=0#
+
+***
+### Read BMI data
+```{r}
+bmi_male <- read.csv('indicator_BMI-male-ASM.csv')
+```
+
+***
+### Rename column labels
+```{r}
+colnames(bmi_male) <- c("Country", 1980:2008)
+```
+
+***
+### Install reshape2 package to reshape the bmi data frame
+```{r}
+library(reshape2)
+reshaped_bmi <- melt(bmi_male)
+colnames(reshaped_bmi) <- c("Country", "Year", "BMI")
+```
+
+***
+### Create line graph of year versus bmi
+```{r}
+library(ggplot2)
+ggplot(aes(x = Year, y = BMI, group = Country, color = Country), data = reshaped_bmi) +
+  geom_point() + geom_line()
+ggsave('year_vs_bmi.png')
+```
+
+***
+### Provide country labels adjacent to each line to identify the top 3 countries with the consistently high rate of BMI
+```{r}
+ggplot(aes(x = Year, y = BMI, group = Country), data = reshaped_bmi) +
+  geom_point() + geom_line() +
+  geom_text(data = reshaped_bmi, aes(Year, BMI, label = Country))
+
+```
+
+Result: The top 3 countries with consistently high BMI in males were (1) Nauru, (2) Cook Islands, and (3) Tonga. Interestingly, all three territories are island countires, with only Cook Islands having dependency on New Zealand. Poor countries may not have the financial capacity to provide health care and prevention for their citizens. Access to health care can be forever a challenge unless sovereign states can provide assistance to some degree.
